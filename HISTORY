@@ -1,0 +1,52 @@
+########################################################################
+# HISTORY
+########################################################################
+
+Written by:
+   Sullivan Beck (sbeck@cpan.org)
+Any suggestions, bug reports, or donations :-) should be sent to me.
+
+Version 1.00  1996-12-05
+   Initial creation
+
+Version 1.01  1997-01-28
+   Used croak and changed die's to confess.
+   "101" is now returned as "101." .
+   Fixed where 9.99 wasn't being correctly returned with 1 sigfig.
+      Kyle Krom <kromk@pt.Cyanamid.COM>
+
+Version 1.02  2000-01-10
+   Fixed where 1249.01 wasn't correctly rounded to 1200.
+      Janna Wemekamp <jwemekam@erin.gov.au>
+
+Version 1.03  2003-09-11
+   Fixed a bug where I left off the sign.  Steve Reaser
+      <steve_reaser@webassign.net>
+   Fixed a bug in subSF where numbers ending in zero were truncated.
+      Andrew Grall <AGrall@dcds.edu>
+
+Version 1.04  2005-06-30
+   Complete rewrite of addSF.
+     - stopped using sprintf (which does not return the same results on
+       all platforms.
+     - replaced IsReal with Simplify.
+
+Version 1.05  2007-02-22
+   Fixed a bug where subSF didn't work with some values.
+
+Version 1.06  2008-05-05
+   Updated test.pl.
+   Added Build.PL and several other things to meet requirements on
+      http://cpants.perl.org/
+
+Version 1.07  2008-05-08
+   Additional changes to meet requirements on http://cpants.perl.org/
+
+Version 1.08  2008-05-09
+   Final changes to meet requirements on http://cpants.perl.org/
+   Bug fix so it won't fail with "Too early to specify a build action"
+
+Version 1.09  2009-09-24
+   FormatSigFigs will preserve a '+' sign.  Denby Angus
+      <support@kisters.com.au>
+   Better handling a value of 0.  Denby Angus <support@kisters.com.au>
