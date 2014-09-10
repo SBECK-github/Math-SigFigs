@@ -1,16 +1,19 @@
 package Math::SigFigs;
 
-# Copyright (c) 1995-2009 Sullivan Beck. All rights reserved.
+# Copyright (c) 1995-2014 Sullivan Beck. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
 ########################################################################
 
-require 5.000;
+require 5.004;
 require Exporter;
 use Carp;
+use strict;
 use warnings;
-@ISA = qw(Exporter);
+
+our (@ISA,@EXPORT,@EXPORT_OK,%EXPORT_TAGS);
+use base qw(Exporter);
 @EXPORT     = qw(FormatSigFigs
                  CountSigFigs
                 );
@@ -19,9 +22,10 @@ use warnings;
                  addSF subSF multSF divSF
                  VERSION);
 
-%EXPORT_TAGS = (all => \@EXPORT_OK);
+%EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
-$VERSION = 1.09;
+our($VERSION);
+$VERSION = 1.10;
 
 use strict;
 
@@ -38,7 +42,7 @@ sub addSF {
   my $m  = ($m1>$m2 ? $m1 : $m2);
 
   my($n) = $n1+$n2;
-  my($s) = ($n<0 ? "-" : "");
+  my($s) = ($n<0 ? q{-} : "");
   $n     = -1*$n  if ($n<0);          # n = 1234.44           5678.99
   $n =~ /^(\d*)/;
   my $i = ($1);                       # i = 1234              5678
@@ -286,5 +290,5 @@ sub _Simplify {
 # cperl-continued-brace-offset: 0
 # cperl-brace-offset: 0
 # cperl-brace-imaginary-offset: 0
-# cperl-label-offset: -2
+# cperl-label-offset: 0
 # End:

@@ -1,58 +1,38 @@
 #!/usr/bin/perl -w
 
-require 5.001;
-
-$runtests=shift(@ARGV);
-if ( -f "t/test.pl" ) {
-  require "t/test.pl";
-  $dir="./lib";
-  $tdir="t";
-} elsif ( -f "test.pl" ) {
-  require "test.pl";
-  $dir="../lib";
-  $tdir=".";
-} else {
-  die "ERROR: cannot find test.pl\n";
+BEGIN {
+  use Test::Inter;
+  $t = new Test::Inter 'CountSigFigs';
 }
 
-unshift(@INC,$dir);
-use Math::SigFigs;
-
-print "CountSigFigs...\n";
+BEGIN { $t->use_ok('Math::SigFigs'); }
 
 $tests="
 
-0.003
-1
+0.003 => 1
 
-0.103
-3
+0.103 => 3
 
-1.0500
-5
+1.0500 => 5
 
-11.
-2
+11. => 2
 
-11
-2
+11 => 2
 
-110
-2
+110 => 2
 
-110.
-3
+110. => 3
 
-0
-0
+0 => 0
 
-0.0
-0
+0.0 => 0
 
 ";
 
-test_Func(\&CountSigFigs,$tests,$runtests);
+$t->tests(func  => \&CountSigFigs,
+          tests => $tests);
 
+$t->done_testing();
 1;
 
 # Local Variables:
@@ -63,6 +43,6 @@ test_Func(\&CountSigFigs,$tests,$runtests);
 # cperl-continued-brace-offset: 0
 # cperl-brace-offset: 0
 # cperl-brace-imaginary-offset: 0
-# cperl-label-offset: -2
+# cperl-label-offset: 0
 # End:
 

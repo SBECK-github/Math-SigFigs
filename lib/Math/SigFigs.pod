@@ -30,19 +30,18 @@ In many scientific applications, it is useful (and in some cases required)
 to be able to format numbers with a given number of significant figures,
 or to do math in such a way as to maintain the correct number of
 significant figures.  The rules for significant figures are too
-complicated to be handled solely using the sprintf function (unless you
-happen to be Randal Schwartz :-).
+complicated to be handled solely using the sprintf function.
 
-These routines allow you to correctly handle significan figures.
+These routines allow you to correctly handle significant figures.
 
-It can count the number of significan figures, format a number to a
+It can count the number of significant figures, format a number to a
 given number of significant figures, and do basic arithmetic.
 
 =head1 ROUTINES
 
 =over 4
 
-=item CountSigFigs
+=item B<CountSigFigs>
 
   $n=CountSigFigs($N);
 
@@ -59,7 +58,7 @@ This returns the number of significant figures in a number.  It returns
   0       0
   0.0     0
 
-=item FormatSigFigs
+=item B<FormatSigFigs>
 
   $str=FormatSigFigs($N,$n)
 
@@ -85,7 +84,7 @@ This will work for all cases except something like "2400" formatted to
   9.9     2   9.9
   9.9     3   9.90
 
-=item addSF, subSF, multSF, divSF
+=item B<addSF, subSF, multSF, divSF>
 
 These routines add/subtract/multiply/divide two numbers while maintaining
 the proper number of significant figures.
@@ -96,13 +95,13 @@ the proper number of significant figures.
 
 =over 4
 
-=item Without scientific notation, some numbers are ambiguous
+=item B<Without scientific notation, some numbers are ambiguous>
 
 These routines do not work with scientific notation (exponents).  As a
 result, it is impossible to unambiguously format some numbers.  For
 example,
 
-  $str=FormatSigFigs("2400",3);
+  $str = FormatSigFigs("2400",3);
 
 will by necessity return the string "2400" which does NOT have 3
 significant figures.  This is not a bug.  It is simply a fundamental
