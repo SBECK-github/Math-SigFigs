@@ -25,12 +25,11 @@ DESCRIPTION
     required) to be able to format numbers with a given number of
     significant figures, or to do math in such a way as to maintain the
     correct number of significant figures. The rules for significant figures
-    are too complicated to be handled solely using the sprintf function
-    (unless you happen to be Randal Schwartz :-).
+    are too complicated to be handled solely using the sprintf function.
 
-    These routines allow you to correctly handle significan figures.
+    These routines allow you to correctly handle significant figures.
 
-    It can count the number of significan figures, format a number to a
+    It can count the number of significant figures, format a number to a
     given number of significant figures, and do basic arithmetic.
 
 ROUTINES
@@ -85,7 +84,7 @@ KNOWN PROBLEMS
         a result, it is impossible to unambiguously format some numbers. For
         example,
 
-          $str=FormatSigFigs("2400",3);
+          $str = FormatSigFigs("2400",3);
 
         will by necessity return the string "2400" which does NOT have 3
         significant figures. This is not a bug. It is simply a fundamental

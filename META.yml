@@ -1,21 +1,28 @@
 ---
-name: Math-SigFigs
-version: 1.09
+abstract: 'do math with correct handling of significant figures'
 author:
   - 'Sullivan Beck <sbeck@cpan.org>'
-abstract: do math with correct handling of significant figures
+build_requires:
+  Module::Build: '0.21'
+  Test::Inter: '0'
+  Test::More: '0'
+configure_requires:
+  Module::Build: '0.21'
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4205, CPAN::Meta::Converter version 2.141170'
 license: perl
-resources:
-  license: http://dev.perl.org/licenses/
-requires:
-  Carp: 0
-  Exporter: 0
-  perl: 5.6.0
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Math-SigFigs
 provides:
   Math::SigFigs:
     file: lib/Math/SigFigs.pm
-    version: 1.09
-generated_by: Module::Build version 0.280801
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+    version: '1.1'
+requires:
+  Carp: '0'
+  perl: '5.006'
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: https://github.com/SBECK-github/Math-SigFigs
+version: '1.10'
