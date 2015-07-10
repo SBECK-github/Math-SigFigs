@@ -24,5 +24,4 @@ t/runtests
 t/runtests.bat
 t/simplify.t
 t/sub.t
-t/test.pl
 META.yml

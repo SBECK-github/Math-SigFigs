@@ -7,6 +7,11 @@ use warnings;
 use 5.006;
 use ExtUtils::MakeMaker 6.30;
 
+my %IsWin32 = map { $_ => 1 } qw( MSWin32 NetWare symbian );
+my $IsWin32 = 1   if ($IsWin32{ $^O });
+my $Pvers   = $];
+my $ConvVers= $ExtUtils::MakeMaker::VERSION;
+
 my %module_prereq = (
    'Carp'                     => '0',
 );
@@ -61,16 +66,7 @@ WriteMakefile(
        })
     : ()),
    EXE_FILES        => [
-                        '.git/hooks/pre-commit.sample',
-                        '.git/hooks/post-update.sample',
-                        '.git/hooks/pre-applypatch.sample',
-                        '.git/hooks/applypatch-msg.sample',
-                        '.git/hooks/update.sample',
-                        '.git/hooks/pre-rebase.sample',
-                        '.git/hooks/pre-push.sample',
-                        '.git/hooks/commit-msg.sample',
-                        '.git/hooks/prepare-commit-msg.sample',
-                        'examples/count',
                         'examples/format',
+                        'examples/count',
                        ],
 );

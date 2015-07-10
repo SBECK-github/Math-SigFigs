@@ -37,7 +37,7 @@ ROUTINES
           $n=CountSigFigs($N);
 
         This returns the number of significant figures in a number. It
-        returns () if $N is not a number.
+        returns "()" if $N is not a number.
 
           $N      $n
           -----   --

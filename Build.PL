@@ -7,6 +7,11 @@ use warnings;
 use 5.006;
 use Module::Build 0.21;
 
+my %IsWin32 = map { $_ => 1 } qw( MSWin32 NetWare symbian );
+my $IsWin32 = 1   if ($IsWin32{ $^O });
+my $Pvers   = $];
+my $ConvVers= $Module::Build::VERSION;
+
 my %module_prereq = (
    'perl'                     => '5.006',
    'Carp'                     => '0',
@@ -60,17 +65,8 @@ my $build = $class->new(
           })
        : ()),
       script_files       => [
-                             '.git/hooks/pre-commit.sample',
-                             '.git/hooks/post-update.sample',
-                             '.git/hooks/pre-applypatch.sample',
-                             '.git/hooks/applypatch-msg.sample',
-                             '.git/hooks/update.sample',
-                             '.git/hooks/pre-rebase.sample',
-                             '.git/hooks/pre-push.sample',
-                             '.git/hooks/commit-msg.sample',
-                             '.git/hooks/prepare-commit-msg.sample',
-                             'examples/count',
                              'examples/format',
+                             'examples/count',
                             ],
 );
 

@@ -45,7 +45,10 @@ Any suggestions, bug reports, or donations :-) should be sent to me.
   - FormatSigFigs will preserve a '+' sign.  Denby Angus
   - Better handling a value of 0.  Denby Angus
 
-1.10
+1.10  2015-07-10
   - Switched test suite to Test::Inter
   - Changed HISTORY file to new Changes specification.
   - Put repository on GitHub.  Gabor Szabo
+  - Improved POD documentation formatting.
+  - Improved test suite (and made a number of simplifications to the module)
+    based on Devel::Cover

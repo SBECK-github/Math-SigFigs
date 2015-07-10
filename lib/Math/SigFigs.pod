@@ -46,7 +46,7 @@ given number of significant figures, and do basic arithmetic.
   $n=CountSigFigs($N);
 
 This returns the number of significant figures in a number.  It returns
-() if $N is not a number.
+C<()> if C<$N> is not a number.
 
   $N      $n
   -----   --
@@ -62,7 +62,7 @@ This returns the number of significant figures in a number.  It returns
 
   $str=FormatSigFigs($N,$n)
 
-This returns a string containing $N formatted to $n significant figures.
+This returns a string containing C<$N> formatted to C<$n> significant figures.
 This will work for all cases except something like "2400" formatted to
 3 significant figures.
 
