@@ -41,7 +41,7 @@ my $class = Module::Build->subclass(
 
 my $build = $class->new(
       module_name        => "Math::SigFigs",
-      dist_version       => "1.10",
+      dist_version       => "1.11",
       dist_abstract      => "do math with correct handling of significant figures",
       license            => "perl",
       dist_author        => "Sullivan Beck <sbeck\@cpan.org>",

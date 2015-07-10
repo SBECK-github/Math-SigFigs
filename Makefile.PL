@@ -37,7 +37,7 @@ if ($EU_MM_V < 6.64) {
 
 WriteMakefile(
    NAME             => "Math::SigFigs",
-   VERSION          => "1.10",
+   VERSION          => "1.11",
    ABSTRACT         => "do math with correct handling of significant figures",
    LICENSE          => "perl",
    ($EU_MM_V >= 6.48
