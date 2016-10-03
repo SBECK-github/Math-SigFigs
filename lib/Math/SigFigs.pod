@@ -32,12 +32,16 @@ or to do math in such a way as to maintain the correct number of
 significant figures.  The rules for significant figures are too
 complicated to be handled solely using the sprintf function.
 
-These routines allow you to correctly handle significant figures.
+These routines allow you to correctly handle significant figures.  It can
+handle real number or exponentials correctly.
 
 It can count the number of significant figures, format a number to a
 given number of significant figures, and do basic arithmetic.
 
 =head1 ROUTINES
+
+All routines return nothing if something other than a valid number is
+passed in for any argument.
 
 =over 4
 
@@ -55,8 +59,12 @@ C<()> if C<$N> is not a number.
   241     3
   0240    2
   0.03    1
-  0       0
-  0.0     0
+  0.030   2
+  0       1
+  0.0     1
+  0.00    2
+  1.2e2   2
+  0.0e2   1
 
 =item B<FormatSigFigs>
 
@@ -74,20 +82,27 @@ This will work for all cases except something like "2400" formatted to
   2400    4   2400.
   2400    5   2400.0
 
-  141     3   141.
+  141     3   141
   141     2   140
 
   0.039   1   0.04
   0.039   2   0.039
+  0.0300  2   0.030
 
   9.9     1   10
   9.9     2   9.9
   9.9     3   9.90
 
+  0       2   0.00
+
 =item B<addSF, subSF, multSF, divSF>
 
 These routines add/subtract/multiply/divide two numbers while maintaining
 the proper number of significant figures.
+
+Working with zero is a special case.  If 0 has 1 signficiant figure (i.e.
+'0') it is treated as exact.  If it has more significant figures (i.e. 0.00),
+that number is used as appropriate.
 
 =back
 

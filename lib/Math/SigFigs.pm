@@ -1,6 +1,6 @@
 package Math::SigFigs;
 
-# Copyright (c) 1995-2015 Sullivan Beck. All rights reserved.
+# Copyright (c) 1995-2016 Sullivan Beck. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
@@ -25,298 +25,284 @@ use base qw(Exporter);
 %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 our($VERSION);
-$VERSION = 1.10;
+$VERSION='1.20';
 
 use strict;
 
 sub addSF {
    my($n1,$n2)=@_;
-   return ()     if (! (defined $n1  ||  defined $n2));
-   $n1    = 0    if (! defined($n1));
-   $n2    = 0    if (! defined($n2));
-   $n1    = _Simplify($n1);
-   $n2    = _Simplify($n2);
-   return $n2    if ($n1==0);
-   return $n1    if ($n2==0);
-
-   my $m1 = _LSP($n1);
-   my $m2 = _LSP($n2);
-   my $m  = ($m1>$m2 ? $m1 : $m2);
-
-   my($n) = $n1+$n2;
-   my($s) = ($n<0 ? q{-} : "");
-   $n     = -1*$n  if ($n<0);          # n = 1234.44           5678.99
-   $n     =~ /^(\d*)/;
-   my $i  = ($1);                      # i = 1234              5678
-   my $l  = length($i);                # l = 4
-
-   if ($m>0) {                         # m = 5,4,3,2,1
-      if ($l >= $m+1) {                # m = 3,2,1; l-m = 1,2,3
-         $n = FormatSigFigs($n,$l-$m); # n = 1000,1200,1230    6000,5700,5680
-      } elsif ($l == $m) {             # m = 4
-         if ($i =~ /^[5-9]/) {
-            $n = 1 . "0"x$m;           # n =                   10000
-         } else {
-            return 0;                  # n = 0
-         }
-      } else {                         # m = 5
-         return 0;
-      }
-
-   } elsif ($i>0) {                    # n = 1234.44           5678.99
-      $n = FormatSigFigs($n,$l-$m);    # m = 0,-1,-2,...
-
-   } else {                            # n = 0.1234    0.00123   0.00567
-      $n =~ /\.(0*)(\d+)/;
-      my ($z,$d) = ($1,$2);
-      $m = -$m;
-
-      if ($m > length($z)) {           # m = -1,-2,..  -3,-4,..  -3,-4,..
-         $n = FormatSigFigs($n,$m-length($z));
-
-      } elsif ($m == length($z)) {     # m =           -2        -2
-         if ($d =~ /^[5-9]/) {
-            $n = "0."."0"x($m-1)."1";  # n =                     0.01
-         } else {
-            return 0;                  # n =           0
-         }
-
-      } else {                         # m =           -1        -1
-         return 0;
-      }
-   }
-
-   return "$s$n";
+   _add($n1,$n2,0);
 }
 
 sub subSF {
    my($n1,$n2)=@_;
-   return ()  if (! (defined $n1  ||  defined $n2));
-   $n1 = 0  if (! defined($n1));
-   $n2 = 0  if (! defined($n2));
+   _add($n1,$n2,1);
+}
 
-   $n2 = _Simplify($n2);
-   if ($n2<0) {
-      $n2 =~ s/\-//;
-   } else {
-      $n2 =~ s/^\+?/-/;
+sub _add {
+   my($n1in,$n2in,$sub) = @_;
+
+   my($n1,$sig1,$lsp1,$s1,$int1,$dec1,$n2,$sig2,$lsp2,$s2,$int2,$dec2);
+
+   if (defined($n1in)) {
+      ($n1,$sig1,$lsp1,$s1,$int1,$dec1) = _Simplify($n1in);
    }
-   addSF($n1,$n2);
+   return   if (! defined($n1));
+
+   if (defined($n2in)) {
+      ($n2,$sig2,$lsp2,$s2,$int2,$dec2) = _Simplify($n2in);
+   }
+   return   if (! defined($n2));
+
+   if ($sub) {
+      if ($n2<0) {
+         $n2 =~ s/\-//;
+         $s2 = '';
+      } elsif ($n2 > 0) {
+         $n2 =~ s/^\+?/-/;
+         $s2 = '-';
+      }
+   }
+
+   return $n2    if ($n1in eq '0');
+   return $n1    if ($n2in eq '0');
+
+   my $lsp = ($lsp1 > $lsp2 ? $lsp1 : $lsp2);
+
+   ($n1) = _ToExp($s1,$int1,$dec1,$lsp);
+   ($n2) = _ToExp($s2,$int2,$dec2,$lsp);
+
+   my($n,$sig,$tmp,$s,$int,$dec) = _Simplify($n1+$n2);
+   $n = sprintf("%.0f",$n) . ".e$lsp";
+   ($n,$sig,$lsp,$tmp,$int,$dec) = _Simplify("${n}");
+   return $n;
 }
 
 sub multSF {
    my($n1,$n2)=@_;
-   return ()  if (! (defined $n1  ||  defined $n2));
-   return 0   if (! defined $n1  ||  ! defined $n2  ||
-                  $n1==0  ||  $n2==0);
-   $n1     = _Simplify($n1);
-   $n2     = _Simplify($n2);
-   my($m1) = CountSigFigs($n1);
-   my($m2) = CountSigFigs($n2);
-   my($m)  = ($m1<$m2 ? $m1 : $m2);
+   my($sig1,$sig2);
+
+   if (defined($n1)) {
+      ($n1,$sig1) = _Simplify($n1);
+   }
+   return   if (! defined($n1));
+
+   if (defined($n2)) {
+      ($n2,$sig2) = _Simplify($n2);
+   }
+   return   if (! defined($n2));
+
+   my $sig = ($sig1 < $sig2 ? $sig1 : $sig2);
    my($n)  = $n1*$n2;
-   FormatSigFigs($n,$m);
+   FormatSigFigs($n,$sig);
 }
 
 sub divSF {
    my($n1,$n2)=@_;
-   return ()  if (! (defined $n1  ||  defined $n2));
-   return 0   if (! defined $n1  ||  $n1==0);
-   return ()  if (! defined $n2  ||  $n2==0);
-   $n1     = _Simplify($n1);
-   $n2     = _Simplify($n2);
+   my($sig1,$sig2);
 
-   my($m1) = CountSigFigs($n1);
-   my($m2) = CountSigFigs($n2);
-   my($m)  = ($m1<$m2 ? $m1 : $m2);
+   if (defined($n1)) {
+      ($n1,$sig1) = _Simplify($n1);
+   }
+   return   if (! defined($n1));
+
+   if (defined($n2)) {
+      ($n2,$sig2) = _Simplify($n2);
+   }
+   return   if (! defined($n2)  ||  $n2 == 0);
+
+   my $sig = ($sig1 < $sig2 ? $sig1 : $sig2);
    my($n)  = $n1/$n2;
-   FormatSigFigs($n,$m);
+   FormatSigFigs($n,$sig);
 }
 
 sub FormatSigFigs {
    my($N,$n) = @_;
-   my($ret);
-   $N        = _Simplify($N);
-   return ""  if (! (defined($N)  &&  $n =~ /^\d+$/  &&  $n>0));
+   return ''  if ($n !~ /^\d+$/  ||  $n == 0);
 
-   $N        =~ s/^([+-]?)//;           # Remove sign
-   my $s     =  $1;
-   return "${s}0"   if ($N==0);
+   my($ret,$sig,$lsp,$s,$int,$dec);
+   ($N,$sig,$lsp,$s,$int,$dec) = _Simplify($N);
+   return ""  if (! defined($N));
+   return '0.0'  if ($N==0  &&  $n==1);
 
-   $N        =~ s/0+$//  if ($N=~/\./); # Remove all trailing zeros after decimal
-   $N        = "0$N"  if ($N=~ /^\./);  # Turn .2 into 0.2
+   return $N  if ($sig eq $n);
 
-   my($l,$l1,$l2,$m)=();
+   # Convert $N to an exponential where the numeric part with the exponent
+   # ignored is 0.1 <= $num < 1.0.  i.e. 0.#####e## where the first '#' is
+   # non-zero.  Then we can format it using a simple sprintf command.
 
-   $m    = CountSigFigs($N);
-
-   # If the number has the right number of sigfigs already, we'll return
-   # it with one minor modification:
-   #     turn 24 (2) into 24.
-   # but
-   #     don't turn 2400 (2) into 2400.
-
-   if ($m==$n) {
-      $N  = "$N."  if (length($N)==$n);
-      return "$s$N";
+   my($num,$e);
+   if ($int > 0) {
+      $num = "0.$int$dec";
+      $e   = length($int);
+   } elsif ($dec ne ''  &&  $dec > 0) {
+      $dec =~ s/^(0*)//;
+      $num = "0.$dec";
+      $e   = -length($1);
+   } else {
+      $e = 0;
+      $num = "$int.$dec";
    }
 
-   # If the number has too few sigfigs, we need to pad it with some zeroes.
+   # sprintf doesn't round 5 up, so convert a 5 to 6 in the n+1'th position
 
-   if ($m<$n) {
-      if ($N=~ /\./) {
-         # 0.012 (4) => 0.01200
-         # 1.12 (4)  => 1.120
-         return "$s$N" . "0"x($n-$m);
-      }
-
-      # 120 (4)   => 120.0
-      # 1200 (4)  => 1200.
-      # 12000 (4) => 12000
-
-      $l = length($N);
-      return "$s$N"  if ($l>$n);
-      return "$s$N." . "0"x($n-$l);
+   if ($n < $sig  &&  substr($num,$n+2,1) eq '5') {
+      substr($num,$n+2,1) = '6';
    }
 
-   # Anything else has too many sigfigs.
-   #
-   # Handle:
-   #      0.0123 (2) => 0.012
+   # We have to handle the one special case:
+   #    0.99 (1) => 1.0
+   # If sprintf rounds a number to 1.0 or higher, then we reduce the
+   # number of decimal points by 1.
 
-   $N = "$N."  if ($N !~ /\./);            # 123.
-   if ($N=~ /^0\.(0*)(\d*)$/) {            # 0.0001234 (2)
-      ($l1,$l2) = (length($1),length($2)); # (l1,l2) = (3,4)
-      $N        =~ s/5$/6/;
-      $l        = $l1+$n;                  # 5
-      $ret      = sprintf("%.${l}f",$N);   # 0.00012
-      $m        = CountSigFigs($ret);
-      return "$s$ret"  if ($n==$m);
-
-      # special cases 0.099 (1) -> 0.1
-      #               0.99  (1) -> 1.
-
-      $l--;
-      $ret      = sprintf("%.${l}f",$N);
-      $m        = CountSigFigs($ret);
-      $ret      = "$ret."  if ($l==0);
-      return "$s$ret";
-   }
-
-   # Handle:
-   #     123.4567 (3) => 123.
-   #     123.4567 (4) => 123.5
-   # Also handle part of:
-   #     1234.567 (3) => 1235 (3)
-
-   $N=~ /^(\d+)\.(\d*)/;                # 123.4567
-   my($n1,$n2) = ($1,$2);
-   ($l1,$l2)=(length($n1),length($n2)); # (l1,l2) = (3,4)
-
-   # Keep some decimal points (or exactly 0)
-
-   if ($n>=$l1) {
-      $l   = $n-$l1;         # l = number of decimal points to keep
-      $N   =~ s/5$/6/;       # 4.95 rounds down... make it go up
-      $ret = sprintf("%.${l}f",$N);
-      $m   = CountSigFigs($ret);
-      if ($m==$n) {
-         $ret="$ret."  if ($l==0 && $m==length($ret));
-         return "$s$ret";
-      }
-
-      # special case 9.99 (2) -> 10.
-      #              9.99 (1) -> 10
-
-      $l--;
-      if ($l>=0) {
-         $ret = sprintf("%.${l}f",$N);
-         $ret = "$ret."  if ($l==0);
-         return "$s$ret";
-      }
-      return "$s$ret";
-   }
-
-   # Otherwise, we're removing all decimal points (and it needs to be
-   # truncated even further).  Truncate (not
-   # round) to an integer and pass through.
-
-   $N = $n1;
-
-   # Handle integers (the only case here is that we want fewer sigfigs
-   # than the lenght of the number.
-   #    123 (2) => 120
-
-   #                                        123     9900 (3)  9900 (2)   9900 (1)
-   $l        = length($N);                # 3       4         4          4
-   $N        =~ s/0*$//;                  # 123     99        99         99
-   $N        =~ s/5$/6/;
-   $m        = sprintf("%.${n}f",".$N");  # .123    .990     .99         1.0
-   if ($m>=1) {
+   my $tmp = sprintf("%.${n}f",$num);
+   if ($tmp >= 1.0) {
       $n--;
-      $l++;
-      $m     = sprintf("%.${n}f",".$N");  # .123    .990     .99         1.
+      $tmp = sprintf("%.${n}f",$num);
    }
-   $m        =~ s/^0//;
-   $m        =~ s/\.//;
-   $N        = $m . "0"x($l-length($m));
-   return "$s$N";
+   ($N,$sig,$lsp,$s,$int,$dec) = _Simplify("$s${tmp}e$e");
+   return $N;
 }
 
 sub CountSigFigs {
    my($N) = @_;
-   $N     = _Simplify($N);
+   my($sig);
+   ($N,$sig) = _Simplify($N);
    return ()  if (! defined($N));
-   return 0   if ($N==0);
-
-   $N     =~ s/^[+-]//;
-   if ($N=~ /^\d+$/) {
-      $N =~ s/0*$//;
-      return length($N);
-   } elsif ($N=~ /^\.0*(\d+)$/) {
-      return length($1);
-   } else {
-      return length($N)-1;
-   }
+   return $sig;
 }
 
 ########################################################################
 # NOT FOR EXPORT
 #
-# These are exported above only for debug purposes.  They are not
-# for general use.  They are not guaranteed to remain backward
-# compatible (or even to exist at all) in future versions.
+# These are for internal use only.  They are not guaranteed to remain
+# backward compatible (or even to exist at all) in future versions.
 ########################################################################
 
-# This returns the power of the least sigificant digit.
+# This takes the parts of a number ($int and $dec) and turns it into
+# an exponential with the LSP in the 1's place.  The exponent is
+# returned (rather than appended to the number).
 #
-sub _LSP {
-   my($n) = @_;
-   $n =~ s/\-//;
-   if ($n =~ /(.*)\.(.+)/) {
-      return -length($2);
-   } elsif ($n =~ /\.$/) {
-      return 0;
-   } else {
-      return length($n) - CountSigFigs($n);
+sub _ToExp {
+   my($s,$int,$dec,$lsp) = @_;
+
+   if ($lsp == 0) {
+      return ("$s$int.${dec}",0);
    }
+
+   if ($lsp > 0) {
+      $int  = "0"x($lsp-length($int)) . $int;
+      $dec  = substr($int,-$lsp) . $dec;
+      $int  = substr($int,0,length($int)-$lsp);
+      return ("$s$int.${dec}",-$lsp);
+   }
+
+   $dec .= "0"x(-$lsp-length($dec));
+   $int .= substr($dec,0,-$lsp);
+   $dec  = substr($dec,-$lsp);
+   return ("$s$int.${dec}",-$lsp);
 }
 
 # This prepares a number by converting it to it's simplest correct
-# form.
+# form.  All space is ignored.  It handles numbers of the form:
+#    signed (+, -, or no sign)
+#    integers
+#    reals (###.###)
+#    exponential (###.###e###)
 #
-# Strip out spaces and leading zeroes before a decimal point.
+# It returns:
+#    the number in the simplest form
+#    the number of significant figures
+#    the power of the least significant digit
 #
 sub _Simplify {
-   my($n)    = @_;
-   return undef  if (! defined $n);
-   if ($n =~ /^\s*([+-]?)\s*0*(\.\d+)\s*$/  ||
-       $n =~ /^\s*([+-]?)\s*0*(\d+\.?\d*)\s*$/) {
-      my($s,$num)=($1,$2);
-      $num = 0  if ($num==0);
-      return "$s$num";
+   my($n)  = @_;
+   return  if (! defined($n));
+   $n      =~ s/\s+//g;
+   $n      =~ s/^([+-])//;
+   my $s   = $1  ||  '';
+   $s      = ''  if ($s eq '+');
+   return  if ($n eq '');
+   my $exp;
+   if ($n  =~ s/[eE]([+-]*\d+)$//) {
+      $exp = $1;
+   } else {
+      $exp = 0;
    }
-   return undef;
+
+   my($int,$dec,$sig,$lsp);
+
+   if ($n  =~ /^(\d+)$/) {                  # 00  0123  012300
+      $int    = $n;
+      $int    =~ s/^0*//;                   # ''  123   12300
+      $dec    = '';
+      $int    =~ /(0*)$/;
+      my $tmp = $1;                         # ''  ''    00
+      $int    = 0  if ($int eq '');         # 0
+      $lsp    = length($tmp);               # 0   0     2
+      $sig    = length($int) - $lsp;        # 1   3     3
+
+   } elsif ($n =~ /^0*\.(\d+)$/) {          # .000  .00123  .0012300
+      $dec    = $1;                         # 000   00123   0012300
+      $int    = '';
+      $dec    =~ /^(0*)/;
+      my $tmp = $1;                         # 000   00      00
+      $lsp    = -length($dec);              # -3    -5      -7
+      $sig    = length($dec)-length($tmp);  # 0     3       5
+      $sig    = length($dec)
+        if ($dec eq $tmp);                  # 3
+
+   } elsif ($n =~ /^0*(\d+)\.(\d*)$/) {     # 12.       12.3
+      ($int,$dec) = ($1,$2);                # 12,''     12,3
+      $lsp    = -length($dec);              # 0         -1
+      $sig    = length($int) + length($dec);# 2         3
+
+   } else {
+      return;
+   }
+
+   # Handle the exponent, if any
+
+   if ($exp > 0) {
+      if ($exp >= length($dec)) {
+         $int  = "$int$dec" . "0"x($exp-length($dec));
+         $dec  = '';
+      } else {
+         $int .= substr($dec,0,$exp);
+         $dec  = substr($dec,$exp);
+      }
+      $lsp += $exp;
+      $int  =~ s/^0*//;
+      $int  = '0'  if (! $int);
+
+   } elsif ($exp < 0) {
+      if (-$exp < length($int)) {
+         $dec  = substr($int,$exp) . $dec;
+         $int  = substr($int,0,length($int)+$exp);
+      } else {
+         $dec  = "0"x(-$exp-length($int)) . "$int$dec";
+         $int  = "0";
+      }
+      $lsp += $exp;
+   }
+
+   # We have a decimal point if:
+   #    There is a decimal section
+   #    An integer ends with a significant 0 but is not exactly 0
+   # We prepend a sign to anything except for 0
+
+   my $num;
+   if ($dec eq '') {
+      $num  = $int;
+      $num .= "."  if ($lsp == 0  &&  $int =~ /0$/  &&  $int ne '0');
+   } else {
+      $int  = "0"  if ($int eq '');
+      $num  = "$int.$dec";
+   }
+   $s       = ''   if ($num == 0);
+   $num     = "$s$num";
+
+   return ($num,$sig,$lsp,$s,$int,$dec);
 }
 
 1;

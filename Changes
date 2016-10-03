@@ -51,4 +51,17 @@ Any suggestions, bug reports, or donations :-) should be sent to me.
   - Put repository on GitHub.  Gabor Szabo
   - Improved POD documentation formatting.
   - Improved test suite (and made a number of simplifications to the module)
-    based on Devel::Cover
+    based on Devel::Cover.  Test suite now has 100% coverage.
+
+1.20  2016-10-03
+  - Added some examples to the docs that illustrate trailing zero handling.
+    Christopher King
+  - Change addSF/subSF to return undef if any non-numeric argument is passed in.
+  - Corrected how 0 (and 0.00, etc.) significant figures are counted and used
+  - Now supports exponentials
+  - Fixed a bug where subtracting numbers very close to each other gave
+    incorrect results.  Richard Spinney
+  - Return numbers in their simplest form (without trailing decimal points
+    when they are not required)
+
+1.21

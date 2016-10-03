@@ -1,10 +1,10 @@
 {
    "abstract" : "do math with correct handling of significant figures",
    "author" : [
-      "Sullivan Beck <sbeck@cpan.org>"
+      "Sullivan Beck (sbeck@cpan.org)"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4205",
+   "generated_by" : "ExtUtils::MakeMaker version 7.1, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -13,15 +13,21 @@
       "version" : "2"
    },
    "name" : "Math-SigFigs",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Module::Build" : "0.21"
+            "ExtUtils::MakeMaker" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "Module::Build" : "0.21"
+            "ExtUtils::MakeMaker" : "6.30"
          }
       },
       "runtime" : {
@@ -39,19 +45,18 @@
    },
    "provides" : {
       "Math::SigFigs" : {
-         "file" : "lib/Math/SigFigs.pm",
-         "version" : "1.1"
+         "file" : "SigFigs.pm",
+         "version" : "1.20"
       }
    },
    "release_status" : "stable",
    "resources" : {
-      "license" : [
-         "http://dev.perl.org/licenses/"
-      ],
       "repository" : {
-         "url" : "https://github.com/SBECK-github/Math-SigFigs"
+         "type" : "git",
+         "url" : "git://github.com/SBECK-github/Math-SigFigs.git",
+         "web" : "https://github.com/SBECK-github/Math-SigFigs"
       }
    },
-   "version" : "1.11",
-   "x_serialization_backend" : "JSON::PP version 2.27203"
+   "version" : "1.20",
+   "x_serialization_backend" : "JSON::PP version 2.27300"
 }

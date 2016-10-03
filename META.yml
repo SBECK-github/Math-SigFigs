@@ -1,29 +1,32 @@
 ---
 abstract: 'do math with correct handling of significant figures'
 author:
-  - 'Sullivan Beck <sbeck@cpan.org>'
+  - 'Sullivan Beck (sbeck@cpan.org)'
 build_requires:
-  Module::Build: '0.21'
+  ExtUtils::MakeMaker: '0'
   Test::Inter: '0'
   Test::More: '0'
 configure_requires:
-  Module::Build: '0.21'
+  ExtUtils::MakeMaker: '6.30'
 dynamic_config: 1
-generated_by: 'Module::Build version 0.4205, CPAN::Meta::Converter version 2.150005'
+generated_by: 'ExtUtils::MakeMaker version 7.1, CPAN::Meta::Converter version 2.150010'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: '1.4'
 name: Math-SigFigs
+no_index:
+  directory:
+    - t
+    - inc
 provides:
   Math::SigFigs:
-    file: lib/Math/SigFigs.pm
-    version: '1.1'
+    file: SigFigs.pm
+    version: '1.20'
 requires:
   Carp: '0'
   perl: '5.006'
 resources:
-  license: http://dev.perl.org/licenses/
-  repository: https://github.com/SBECK-github/Math-SigFigs
-version: '1.11'
-x_serialization_backend: 'CPAN::Meta::YAML version 0.012'
+  repository: git://github.com/SBECK-github/Math-SigFigs.git
+version: '1.20'
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

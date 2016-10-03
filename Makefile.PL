@@ -37,7 +37,7 @@ if ($EU_MM_V < 6.64) {
 
 WriteMakefile(
    NAME             => "Math::SigFigs",
-   VERSION          => "1.11",
+   VERSION          => "1.20",
    ABSTRACT         => "do math with correct handling of significant figures",
    LICENSE          => "perl",
    ($EU_MM_V >= 6.48
@@ -53,20 +53,41 @@ WriteMakefile(
    ($EU_MM_V >= 6.64
     ? (TEST_REQUIRES   => \%test_prereq)
     : ()),
-
    ($EU_MM_V > 6.45
-    ? (META_MERGE => {
-        resources => {
-           repository => {
-              type => "git",
-              web  => "https://github.com/SBECK-github/Math-SigFigs",
-              url  => "git://github.com/SBECK-github/Math-SigFigs.git",
-           }
-        }
-       })
+    ? (META_ADD => {
+          provides     => {
+             'Math::SigFigs' => {
+                file    => 'SigFigs.pm',
+                version => '1.20',
+             },
+
+          },
+       }
+      )
     : ()),
+
+   ($EU_MM_V > 6.46
+    ? (META_MERGE => {
+          'meta-spec'  => {
+             version   => 2,
+          },
+          resources    => {
+             repository => {
+                type => 'git',
+                web  => 'https://github.com/SBECK-github/Math-SigFigs',
+                url  => 'git://github.com/SBECK-github/Math-SigFigs.git',
+             },
+          },
+       }
+      )
+    : ()),
+
    EXE_FILES        => [
                         'examples/format',
                         'examples/count',
+
                        ],
+
+
+
 );
