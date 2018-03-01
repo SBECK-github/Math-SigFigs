@@ -80,25 +80,16 @@ sub _add {
 
 sub multSF {
    my($n1,$n2)=@_;
-   my($sig1,$sig2);
-
-   if (defined($n1)) {
-      ($n1,$sig1) = _Simplify($n1);
-   }
-   return   if (! defined($n1));
-
-   if (defined($n2)) {
-      ($n2,$sig2) = _Simplify($n2);
-   }
-   return   if (! defined($n2));
-
-   my $sig = ($sig1 < $sig2 ? $sig1 : $sig2);
-   my($n)  = $n1*$n2;
-   FormatSigFigs($n,$sig);
+   _mult($n1,$n2,0);
 }
 
 sub divSF {
    my($n1,$n2)=@_;
+   _mult($n1,$n2,1);
+}
+
+sub _mult {
+   my($n1,$n2,$div)=@_;
    my($sig1,$sig2);
 
    if (defined($n1)) {
@@ -109,11 +100,12 @@ sub divSF {
    if (defined($n2)) {
       ($n2,$sig2) = _Simplify($n2);
    }
-   return   if (! defined($n2)  ||  $n2 == 0);
+   return   if (! defined($n2)  ||
+                ($div  &&  $n2 == 0));
 
    my $sig = ($sig1 < $sig2 ? $sig1 : $sig2);
-   my($n)  = $n1/$n2;
-   FormatSigFigs($n,$sig);
+   my($n)  = ($div ? $n1/$n2 : $n1*$n2);
+   return FormatSigFigs($n,$sig);
 }
 
 sub FormatSigFigs {
@@ -221,7 +213,6 @@ sub _Simplify {
    $n      =~ s/\s+//g;
    $n      =~ s/^([+-])//;
    my $s   = $1  ||  '';
-   $s      = ''  if ($s eq '+');
    return  if ($n eq '');
    my $exp;
    if ($n  =~ s/[eE]([+-]*\d+)$//) {
@@ -232,25 +223,21 @@ sub _Simplify {
 
    my($int,$dec,$sig,$lsp);
 
-   if ($n  =~ /^(\d+)$/) {                  # 00  0123  012300
-      $int    = $n;
-      $int    =~ s/^0*//;                   # ''  123   12300
+   if ($n  =~ /^\d+$/) {                    # 00     0123     012300
+      $int    = $n+0;                       # 0      123      12300
+      $int    =~ /^(\d+?)(0*)$/;
+      my($i,$z) = ($1,$2);                  # 0,''   123,''   123,00
+      $lsp    = length($z);                 # 0      0        2
+      $sig    = length($int) - $lsp;        # 1      3        3
       $dec    = '';
-      $int    =~ /(0*)$/;
-      my $tmp = $1;                         # ''  ''    00
-      $int    = 0  if ($int eq '');         # 0
-      $lsp    = length($tmp);               # 0   0     2
-      $sig    = length($int) - $lsp;        # 1   3     3
 
-   } elsif ($n =~ /^0*\.(\d+)$/) {          # .000  .00123  .0012300
-      $dec    = $1;                         # 000   00123   0012300
+   } elsif ($n =~ /^0*\.(\d+)$/) {          # .000       .00123     .0012300
+      $dec    = $1;                         # 000        00123      0012300
       $int    = '';
-      $dec    =~ /^(0*)/;
-      my $tmp = $1;                         # 000   00      00
-      $lsp    = -length($dec);              # -3    -5      -7
-      $sig    = length($dec)-length($tmp);  # 0     3       5
-      $sig    = length($dec)
-        if ($dec eq $tmp);                  # 3
+      $dec    =~ /^(0*?)([1-9]\d*?)?(0*+)$/;
+      my($z0,$d,$z1) = ($1,$2,$3);          # '','',000  00,123,''  00,123,00
+      $lsp    = -length($dec);              # -3         -5         -7
+      $sig    = length($dec)-length($z0);   # 3          3          5
 
    } elsif ($n =~ /^0*(\d+)\.(\d*)$/) {     # 12.       12.3
       ($int,$dec) = ($1,$2);                # 12,''     12,3
@@ -299,7 +286,7 @@ sub _Simplify {
       $int  = "0"  if ($int eq '');
       $num  = "$int.$dec";
    }
-   $s       = ''   if ($num == 0);
+   $s       = ''   if ($num == 0  ||  $s eq '+');
    $num     = "$s$num";
 
    return ($num,$sig,$lsp,$s,$int,$dec);
