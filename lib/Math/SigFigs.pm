@@ -1,6 +1,6 @@
 package Math::SigFigs;
 
-# Copyright (c) 1995-2016 Sullivan Beck. All rights reserved.
+# Copyright (c) 1995-2019 Sullivan Beck. All rights reserved.
 # This program is free software; you can redistribute it and/or modify it
 # under the same terms as Perl itself.
 
@@ -183,13 +183,15 @@ sub _ToExp {
    }
 
    if ($lsp > 0) {
-      $int  = "0"x($lsp-length($int)) . $int;
+      my $z = ($lsp > length($int) ?
+               "0"x($lsp-length($int)) : "");
+      $int  = "$z$int";
       $dec  = substr($int,-$lsp) . $dec;
       $int  = substr($int,0,length($int)-$lsp);
       return ("$s$int.${dec}",-$lsp);
    }
 
-   $dec .= "0"x(-$lsp-length($dec));
+   $dec .= "0"x(-$lsp-length($dec))  if (-$lsp > length($dec));
    $int .= substr($dec,0,-$lsp);
    $dec  = substr($dec,-$lsp);
    return ("$s$int.${dec}",-$lsp);
