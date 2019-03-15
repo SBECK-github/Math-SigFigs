@@ -43,7 +43,7 @@ if ($EU_MM_V < 6.64) {
 
 WriteMakefile(
    NAME             => "Math::SigFigs",
-   VERSION          => "1.21",
+   VERSION          => "1.22",
    ABSTRACT         => "do math with correct handling of significant figures",
    LICENSE          => "perl",
    ($EU_MM_V >= 6.48
@@ -64,7 +64,7 @@ WriteMakefile(
           provides     => {
              'Math::SigFigs' => {
                 file    => 'lib/Math/SigFigs.pm',
-                version => '1.21',
+                version => '1.22',
              },
 
           },
